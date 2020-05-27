@@ -29,8 +29,10 @@ const renderCard = response => {
       name: title,
       vote_average: vote,
       poster_path: poster,
-      backdrop_path: backdrop
+      backdrop_path: backdrop,
+      overview: disr
     } = item;
+
 
     const posterIMG = poster ? IMG_URL + poster : backdrop ? IMG_URL + backdrop : 'img/no-poster.jpg';
     const backdropIMG = backdrop ? IMG_URL + backdrop : '';

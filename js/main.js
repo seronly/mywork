@@ -22,7 +22,6 @@ const DBService = class {
 }
 
 const renderCard = response => {
-  console.log(response);
   tvShowsList.textContent = '';
   response.results.forEach(item => {
     const {

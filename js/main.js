@@ -29,8 +29,7 @@ const renderCard = response => {
       name: title,
       vote_average: vote,
       poster_path: poster,
-      backdrop_path: backdrop,
-      overview: disr
+      backdrop_path: backdrop
     } = item;
 
 

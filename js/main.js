@@ -18,7 +18,8 @@ const leftMenu = document.querySelector('.left-menu'),
   modalImg = document.querySelector('.image__content'),
   tvShowsHead = document.querySelector('.tv-shows__head'),
   preloader = document.querySelector('.preloader'),
-  dropdown = document.querySelectorAll('.dropdown');
+  dropdown = document.querySelectorAll('.dropdown'),
+  modalContent = document.querySelector('.modal__content');
 
 const loading = document.createElement('div');
 loading.className = 'loading';
@@ -164,6 +165,7 @@ tvShowsList.addEventListener('click', event => {
         //не показывать в карточке постер, если его нет
         if (!posterPath) {
           modalImg.classList.add('hide');
+          modalContent.style.paddingLeft = '30px';
         } else {
           modalImg.classList.remove('hide')
         }
@@ -178,7 +180,6 @@ tvShowsList.addEventListener('click', event => {
         rating.textContent = voteAver;
         description.textContent = overview;
         modalLink.href = homepage;
-
       })
       .then(() => {
         document.body.style.overflow = 'hidden';

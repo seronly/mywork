@@ -15,7 +15,8 @@ const leftMenu = document.querySelector('.left-menu'),
   modalLink = document.querySelector('.modal__link'),
   searchForm = document.querySelector('.search__form'),
   searchFormInput = document.querySelector('.search__form-input'),
-  modalImg = document.querySelector('.image__content');
+  modalImg = document.querySelector('.image__content'),
+  tvShowsHead = document.querySelector('.tv-shows__head');
 
 const loading = document.createElement('div');
 loading.className = 'loading';
@@ -54,10 +55,12 @@ const DBService = class {
 
 // рендер карточек
 const renderCard = response => {
+
   tvShowsList.textContent = '';
 
-
   if (response.results.length) {
+
+    tvShowsHead.textContent = 'Результаты поиска';
     response.results.forEach(item => {
       const {
         name: title,
@@ -93,7 +96,6 @@ const renderCard = response => {
   }
   else {
     loading.remove();
-    const tvShowsHead = document.querySelector('.tv-shows__head');
     tvShowsHead.textContent = 'Ничего не найдено...';
   };
 }
@@ -107,7 +109,7 @@ searchForm.addEventListener('submit', event => {
 
   if (value) {
     tvShows.append(loading);
-    console.log(new DBService().getSearchResult(value).then(renderCard));
+    new DBService().getSearchResult(value).then(renderCard);
   }
   searchFormInput.value = '';
 

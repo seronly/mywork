@@ -14,7 +14,8 @@ const leftMenu = document.querySelector('.left-menu'),
   description = document.querySelector('.description'),
   modalLink = document.querySelector('.modal__link'),
   searchForm = document.querySelector('.search__form'),
-  searchFormInput = document.querySelector('.search__form-input');
+  searchFormInput = document.querySelector('.search__form-input'),
+  modalImg = document.querySelector('.image__content');
 
 const loading = document.createElement('div');
 loading.className = 'loading';
@@ -50,7 +51,7 @@ const DBService = class {
 }
 
 
-
+// рендер карточек
 const renderCard = response => {
   tvShowsList.textContent = '';
 
@@ -81,12 +82,14 @@ const renderCard = response => {
       </a>
     `;
 
-    loading.remove();
+
     tvShowsList.append(card);
   });
-
+  loading.remove();
 };
 
+
+//поиск
 searchForm.addEventListener('submit', event => {
   event.preventDefault();
 
@@ -95,6 +98,7 @@ searchForm.addEventListener('submit', event => {
   if (value) {
     tvShows.append(loading);
     new DBService().getSearchResult(value).then(renderCard);
+    console.log('new DBService().getSearchResult(value).then(renderCard): ', new DBService().getSearchResult(value).then(renderCard));
   }
   searchFormInput.value = '';
 
@@ -137,7 +141,7 @@ tvShowsList.addEventListener('click', event => {
 
     new DBService().getTvShow(card.id)
       .then(({ poster_path: posterPath, name: title, genres, vote_average: voteAver, overview, homepage }) => {
-        tvCardImg.src = IMG_URL + posterPath;
+        tvCardImg.src = posterPath ? IMG_URL + posterPath : modalImg.classList.add('hide'); //не показывать в карточке постер, если его нет
         tvCardImg.alt = title;
         modalTitle.textContent = title;
         //genresList.innerHTML = response.genres.reduce((acc, item) => { return `${acc}<li>${item.name}</li>` }, '');

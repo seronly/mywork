@@ -19,7 +19,8 @@ const leftMenu = document.querySelector('.left-menu'),
   tvShowsHead = document.querySelector('.tv-shows__head'),
   preloader = document.querySelector('.preloader'),
   dropdown = document.querySelectorAll('.dropdown'),
-  modalContent = document.querySelector('.modal__content');
+  modalContent = document.querySelector('.modal__content'),
+  pagination = document.querySelector('.pagination');
 
 const loading = document.createElement('div');
 loading.className = 'loading';
@@ -43,24 +44,37 @@ const DBService = class {
   }
 
   getSearchResult = query => {
-    return this.getData(`${SERVER}search/tv?api_key=${API_KEY}&query=${query}&language=ru-RU`)
+    this.temp = `${SERVER}search/tv?api_key=${API_KEY}&query=${query}&language=ru-RU`;
+    return this.getData(this.temp);
+  }
+
+  getNextPage = page => {
+    return this.getData(this.temp + '&page=' + page);
   }
 
   getTvShow = id => {
     return this.getData(`${SERVER}tv/${id}?api_key=${API_KEY}&language=ru-RU`);
   }
 
+  getTopRated = () => this.getData(`${SERVER}tv/top_rated?api_key=${API_KEY}&language=ru-RU`);
+
+  getPopular = () => this.getData(`${SERVER}tv/popular?api_key=${API_KEY}&language=ru-RU`);
+
+  getToday = () => this.getData(`${SERVER}tv/airing_today?api_key=${API_KEY}&language=ru-RU`);
+
+  getWeek = () => this.getData(`${SERVER}tv/on_the_air?api_key=${API_KEY}&language=ru-RU`);
 }
 
+const dbService = new DBService;
 
 // рендер карточек
-const renderCard = response => {
+const renderCard = (response, target) => {
 
   tvShowsList.textContent = '';
 
   if (response.total_results) {
 
-    tvShowsHead.textContent = 'Результаты поиска';
+    tvShowsHead.textContent = target ? target.textContent : 'Результаты поиска';
     tvShowsHead.style.color = 'black';
     response.results.forEach(item => {
       const {
@@ -99,7 +113,15 @@ const renderCard = response => {
     tvShowsHead.style.cssText = 'color: red; text-decoration: underline;'
     return;
   };
-}
+
+  pagination.textContent = '';
+  if (!target && response.total_pages > 1) {
+    for (let i = 1; i <= response.total_pages; i++) {
+      pagination.innerHTML += `<li><a href="" class = "pages">${i}</a></li>`
+    }
+  }
+
+};
 
 //поиск
 searchForm.addEventListener('submit', event => {
@@ -109,7 +131,7 @@ searchForm.addEventListener('submit', event => {
 
   if (value) {
     tvShows.append(loading);
-    new DBService().getSearchResult(value).then(renderCard);
+    dbService.getSearchResult(value).then(renderCard);
   }
   searchFormInput.value = '';
 });
@@ -145,8 +167,29 @@ leftMenu.addEventListener('click', event => {
     leftMenu.classList.add('openMenu');
     hamburger.classList.add('open');
   }
-});
 
+  if (target.closest('#top-rated')) {
+    tvShows.append(loading);
+    dbService.getTopRated().then((response) => renderCard(response, target));
+  }
+  if (target.closest('#popular')) {
+    tvShows.append(loading);
+    dbService.getPopular().then((response) => renderCard(response, target));
+  }
+  if (target.closest('#today')) {
+    tvShows.append(loading);
+    dbService.getToday().then((response) => renderCard(response, target));
+  }
+  if (target.closest('#week')) {
+    tvShows.append(loading);
+    dbService.getWeek().then((response) => renderCard(response, target));
+  }
+  if (target.closest('#search')) {
+    tvShowsList.textContent = '';
+    tvShowsHead.textContent = '';
+  }
+
+});
 
 // Открытие модального окна
 tvShowsList.addEventListener('click', event => {
@@ -160,7 +203,7 @@ tvShowsList.addEventListener('click', event => {
 
     preloader.style.display = 'flex'; //прелоадер +
 
-    new DBService().getTvShow(card.id)
+    dbService.getTvShow(card.id)
       .then(({ poster_path: posterPath, name: title, genres, vote_average: voteAver, overview, homepage }) => {
         //не показывать в карточке постер, если его нет
         if (!posterPath) {
@@ -212,3 +255,12 @@ const changeImage = event => {
 
 tvShowsList.addEventListener('mouseover', changeImage);
 tvShowsList.addEventListener('mouseout', changeImage);
+
+pagination.addEventListener('click', event => {
+  event.preventDefault();
+  const target = event.target;
+  if (target.classList.contains('pages')) { //проверка на клик ^ по странице
+    tvShows.append(loading);
+    dbService.getNextPage(target.textContent).then(renderCard).finally(loading.remove());
+  }
+});

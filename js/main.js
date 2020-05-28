@@ -16,15 +16,14 @@ const leftMenu = document.querySelector('.left-menu'),
   searchForm = document.querySelector('.search__form'),
   searchFormInput = document.querySelector('.search__form-input'),
   modalImg = document.querySelector('.image__content'),
-  tvShowsHead = document.querySelector('.tv-shows__head');
+  tvShowsHead = document.querySelector('.tv-shows__head'),
+  preloader = document.querySelector('.preloader'),
+  dropdown = document.querySelectorAll('.dropdown');
 
 const loading = document.createElement('div');
 loading.className = 'loading';
 
-const preloader = document.querySelector('.preloader');
-
 const DBService = class {
-
 
   getData = async (url) => {
     const res = await fetch(url);
@@ -58,9 +57,10 @@ const renderCard = response => {
 
   tvShowsList.textContent = '';
 
-  if (response.results.length) {
+  if (response.total_results) {
 
     tvShowsHead.textContent = 'Результаты поиска';
+    tvShowsHead.style.color = 'black';
     response.results.forEach(item => {
       const {
         name: title,
@@ -94,7 +94,9 @@ const renderCard = response => {
   }
   else {
     loading.remove();
-    tvShowsHead.textContent = 'Ничего не найдено...';
+    tvShowsHead.textContent = 'К сожалению, по вашему запросу ничего не найдено...';
+    tvShowsHead.style.cssText = 'color: red; text-decoration: underline;'
+    return;
   };
 }
 
@@ -112,15 +114,24 @@ searchForm.addEventListener('submit', event => {
 });
 
 // Меню (открытие, закрытие и др.)
+
+const closeDropdown = () => {
+  dropdown.forEach(item => {
+    item.classList.remove('active');
+  })
+}
+
 hamburger.addEventListener('click', () => {
   leftMenu.classList.toggle('openMenu');
   hamburger.classList.toggle('open');
+  closeDropdown();
 });
 
 document.addEventListener('click', event => {
   if (!event.target.closest('.left-menu')) {
     leftMenu.classList.remove('openMenu');
     hamburger.classList.remove('open');
+    closeDropdown();
   }
 });
 
@@ -139,21 +150,24 @@ leftMenu.addEventListener('click', event => {
 // Открытие модального окна
 tvShowsList.addEventListener('click', event => {
   event.preventDefault();
-  preloader.style.display = 'flex'; //прелоадер +
+
 
   const target = event.target;
   const card = target.closest('.tv-card');
 
   if (card) {
 
+    preloader.style.display = 'flex'; //прелоадер +
+
     new DBService().getTvShow(card.id)
       .then(({ poster_path: posterPath, name: title, genres, vote_average: voteAver, overview, homepage }) => {
+        //не показывать в карточке постер, если его нет
         if (!posterPath) {
           modalImg.classList.add('hide');
         } else {
           modalImg.classList.remove('hide')
         }
-        tvCardImg.src = IMG_URL + posterPath; //не показывать в карточке постер, если его нет
+        tvCardImg.src = IMG_URL + posterPath;
         tvCardImg.alt = title;
         modalTitle.textContent = title;
         //genresList.innerHTML = response.genres.reduce((acc, item) => { return `${acc}<li>${item.name}</li>` }, '');
@@ -169,10 +183,10 @@ tvShowsList.addEventListener('click', event => {
       .then(() => {
         document.body.style.overflow = 'hidden';
         modal.classList.remove('hide');
-
+      })
+      .finally(() => { //finally отработается в любом случае, а then из-за ошибки отменяется
         preloader.style.display = 'none'; // прелоадер -
       });
-
   }
 });
 

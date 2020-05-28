@@ -88,18 +88,15 @@ const renderCard = response => {
       </a>
     `;
 
-
       tvShowsList.append(card);
     });
     loading.remove();
-
   }
   else {
     loading.remove();
     tvShowsHead.textContent = 'Ничего не найдено...';
   };
 }
-
 
 //поиск
 searchForm.addEventListener('submit', event => {
@@ -112,10 +109,7 @@ searchForm.addEventListener('submit', event => {
     new DBService().getSearchResult(value).then(renderCard);
   }
   searchFormInput.value = '';
-
 });
-
-
 
 // Меню (открытие, закрытие и др.)
 hamburger.addEventListener('click', () => {

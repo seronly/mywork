@@ -20,6 +20,7 @@ const leftMenu = document.querySelector('.left-menu'),
 const loading = document.createElement('div');
 loading.className = 'loading';
 
+const preloader = document.querySelector('.preloader');
 
 const DBService = class {
 
@@ -98,7 +99,6 @@ searchForm.addEventListener('submit', event => {
   if (value) {
     tvShows.append(loading);
     new DBService().getSearchResult(value).then(renderCard);
-    console.log('new DBService().getSearchResult(value).then(renderCard): ', new DBService().getSearchResult(value).then(renderCard));
   }
   searchFormInput.value = '';
 
@@ -130,9 +130,11 @@ leftMenu.addEventListener('click', event => {
   }
 });
 
+
 // Открытие модального окна
 tvShowsList.addEventListener('click', event => {
   event.preventDefault();
+  preloader.style.display = 'flex'; //прелоадер +
 
   const target = event.target;
   const card = target.closest('.tv-card');
@@ -141,6 +143,7 @@ tvShowsList.addEventListener('click', event => {
 
     new DBService().getTvShow(card.id)
       .then(({ poster_path: posterPath, name: title, genres, vote_average: voteAver, overview, homepage }) => {
+
         tvCardImg.src = posterPath ? IMG_URL + posterPath : modalImg.classList.add('hide'); //не показывать в карточке постер, если его нет
         tvCardImg.alt = title;
         modalTitle.textContent = title;
@@ -152,18 +155,16 @@ tvShowsList.addEventListener('click', event => {
         rating.textContent = voteAver;
         description.textContent = overview;
         modalLink.href = homepage;
+
       })
       .then(() => {
         document.body.style.overflow = 'hidden';
         modal.classList.remove('hide');
+
+        preloader.style.display = 'none'; // прелоадер -
       });
 
-
-
-    document.body.style.overflow = 'hidden';
-    modal.classList.remove('hide');
   }
-
 });
 
 // Закрытие модального окна

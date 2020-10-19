@@ -118,12 +118,12 @@ p {
 
 .left-menu:hover {
     height: 100%;
-    background-color: #00838f;
+    background-color: rgba(0, 131, 143,0.5);
 }
 
 .left-menu.openMenu {
     height: 100%;
-    background-color: #00838f;
+    background-color: rgba(0, 131, 143,1);
 }
 
 
